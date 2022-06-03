@@ -1,0 +1,238 @@
+create database PokeApp;
+use PokeApp;
+
+
+create table Habilidades
+(
+    id                 int auto_increment
+        primary key,
+    Nombre             varchar(100) charset utf8mb3 null,
+    Fecha_Registro     datetime                     null,
+    Fecha_Modificacion datetime                     null,
+    Estatus            tinyint default 1            null
+);
+
+
+create table Habilidad_Pokemon
+(
+    id                 int auto_increment
+        primary key,
+    id_Pokemon         int               null,
+    id_Habilidad       int               null,
+    Oculta             tinyint           null,
+    Fecha_Registro     datetime          null,
+    Fecha_Modificacion datetime          null,
+    Estatus            tinyint default 1 null,
+    constraint Habilidad_Pokemon_Habilidades_id_fk
+        foreign key (id_Habilidad) references Habilidades (id),
+    constraint Habilidad_Pokemon_Pokemon_id_fk
+        foreign key (id_Pokemon) references Pokemon (id)
+);
+
+create table Imagen
+(
+    id                 int auto_increment
+        primary key,
+    Nombre             varchar(100) charset utf8mb3 null,
+    url                text                         null,
+    id_Pokemon         int                          null,
+    Fecha_Registro     datetime                     null,
+    Fecha_Modificacion datetime                     null,
+    Estatus            tinyint default 1            null,
+    constraint Imagen_Pokemon_id_fk
+        foreign key (id_Pokemon) references Pokemon (id)
+);
+
+create table Tipo_Usuario
+(
+    Id_Tipo_Usuario    int auto_increment
+        primary key,
+    Nombre             text                                  not null,
+    Descripcion        text                                  null,
+    Estado             tinyint   default 1                   null,
+    Fecha_Registro     timestamp default current_timestamp() null,
+    Fecha_Modificacion timestamp default current_timestamp() null on update current_timestamp()
+);
+
+create table Usuario
+(
+    Id_Usuario         int auto_increment comment 'Clave principal autoincrementable de la table de usuario'
+        primary key,
+    Nombre_Acceso      text                                    null,
+    Clave_Acceso       text                                    null,
+    Tipo               int                                     null,
+    Correo             text                                    null,
+    Url_Imagen         varchar(45) default 'general.png'       null,
+    Estado             tinyint     default 1                   null,
+    Fecha_Cambio_Clave datetime    default current_timestamp() null,
+    Fecha_Registro     timestamp   default current_timestamp() null,
+    Fecha_Modificacion timestamp   default current_timestamp() null on update current_timestamp(),
+    constraint Usuario___fk_Tipo_Usuario
+        foreign key (Tipo) references Tipo_Usuario (Id_Tipo_Usuario)
+);
+
+create table Dispositivo
+(
+    Id_Dispositivo     int auto_increment
+        primary key,
+    Id_Usuario         int                                   null,
+    Agente             varchar(50)                           null,
+    Version            text                                  null,
+    Plataforma         varchar(50)                           null,
+    Firma              varchar(50)                           null,
+    Modelo             varchar(50)                           null,
+    Tipo_Dispositivo   tinyint   default 1                   null,
+    Cadena             text                                  null,
+    Estado             tinyint   default 1                   null,
+    Fecha_Registro     timestamp default current_timestamp() null,
+    Fecha_Modificacion timestamp default current_timestamp() null on update current_timestamp(),
+    constraint fk_Dispositivo_1
+        foreign key (Id_Usuario) references Usuario (Id_Usuario)
+);
+
+create index fk_Dispositivo_1_idx
+    on Dispositivo (Id_Usuario);
+
+create table Sesion
+(
+    Id_Sesion       int auto_increment
+        primary key,
+    Id_Usuario      int                                   not null,
+    Token           text                                  null,
+    Ip              text                                  null,
+    Id_Dispositivo  int                                   null,
+    Fecha_Inicio    timestamp default current_timestamp() null,
+    Fecha_Last_Move datetime                              null,
+    Fecha_Cierre    datetime                              null,
+    constraint fk_Sesion_1
+        foreign key (Id_Dispositivo) references Dispositivo (Id_Dispositivo),
+    constraint usuario
+        foreign key (Id_Usuario) references Usuario (Id_Usuario)
+            on delete cascade
+);
+
+create index fk_Sesion_1_idx
+    on Sesion (Id_Dispositivo);
+
+create index usuario_idx
+    on Sesion (Id_Usuario);
+
+create table Token
+(
+    Id_Token           int auto_increment
+        primary key,
+    Codigo_validacion  text                                  null comment '
+',
+    Fecha_Peticion     datetime                              null,
+    Token              text                                  null,
+    Id_Usuario         int                                   null comment '	',
+    Estatus            tinyint   default 0                   null,
+    Fecha_Modificacion timestamp default current_timestamp() null on update current_timestamp(),
+    constraint fk_Token_Usuario1
+        foreign key (Id_Usuario) references Usuario (Id_Usuario)
+);
+
+create index usuario_idx
+    on Token (Id_Usuario);
+
+INSERT INTO PokeApp.Tipo_Usuario (Id_Tipo_Usuario, Nombre, Descripcion, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (1, 'Administración', 'Administración', 1, '2018-12-19 03:53:59', '2019-01-07 01:06:56');
+
+
+INSERT INTO PokeApp.Usuario (Id_Usuario, Nombre_Acceso, Clave_Acceso, Tipo, Correo, Url_Imagen, Estado, Fecha_Cambio_Clave, Fecha_Registro, Fecha_Modificacion) VALUES (1, 'Administración', 'b783f949e233a203df7f1e5c05c9933b9e87a9fed89cbf9d424114d054c78e54', 1, 'sistemas@paruno.mx', 'general.png', 1, '2022-06-01 14:33:14', '2018-07-14 01:38:12', '2022-06-01 14:33:15');
+
+
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (1, '2iAZAu', '2021-04-19 13:47:29', '75a8f27df91d8b1d0d9460bbb3abc247e8891002cb738c39a4d1d2fdb0e7c276', 1, 1, '2021-04-19 16:14:32');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (2, 'rDgEgC', '2021-04-19 13:48:39', '74757c20e514157b1a7cf2ba539c6bc34a49adbf5831b824f68f67dfc7e5ceba', 1, 1, '2021-04-19 16:25:25');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (3, '1dorKm', '2021-04-20 07:36:44', '6717e8cb68565f6939531ce6030f47d613792fa3fbcc3324ecfbf67a55b5042d', 1, 1, '2021-04-20 08:11:52');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (7, '1xPuRF', '2021-04-20 08:11:52', '96ec76c64d938d0426d96286b6ba45e39aa8a6cda5bd987df6abfa1f6ca5545e', 1, 1, '2021-04-20 08:22:05');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (8, 'roXbJG', '2022-06-01 13:16:42', '8c6cc7fece03df301325e4a1df735837796d42e5bebfdc1c6885a2bd32e9b05f', 1, 1, '2022-06-01 13:21:07');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (9, 'xdBTba', '2022-06-01 13:21:07', '0cb684df1d9e220c9e2e5be9d993e7f0baa217903804d9b0065d8a69bfdc14a2', 1, 1, '2022-06-01 13:22:51');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (10, 'A9D31M', '2022-06-01 13:22:51', '192406b2c4f899bbd998a85e453bd5995f378708c34ebef80730180f8c471104', 1, 1, '2022-06-01 13:24:10');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (11, 'p3E2xt', '2022-06-01 13:24:10', '1c002466d9c7d77e40e44caece2a1e9dd641bf76d8f6c4da8def65d565067037', 1, 1, '2022-06-01 13:27:16');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (12, 'QnxyQg', '2022-06-01 13:27:16', 'ba114d6a70ac9f881074b22310aadc1a8e6310d2919ebd10881876564ecbd330', 1, 1, '2022-06-01 13:27:32');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (13, 'avW7MS', '2022-06-01 13:27:32', '32784981f142b24f212491c0258fac6c820228642bb0ab1b364e9fba9d7ba507', 1, 1, '2022-06-01 13:27:48');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (14, 'nVrtwN', '2022-06-01 13:27:49', '48ffb214366e8c231e41e7341ff3728e505e2c005a88f540b62090d92a9f2c95', 1, 1, '2022-06-01 13:28:14');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (15, 'kM3Flx', '2022-06-01 13:28:14', '387e242007e94f36748eeca2321e857d4f966a5cfbc724c485c0a5e548d82ea6', 1, 1, '2022-06-01 13:29:18');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (16, 'g7qicl', '2022-06-01 13:29:18', 'f050ec387d86027dd4c0b6ed069fd023c57df23bb708fa838361de4b8f5cc7c4', 1, 1, '2022-06-01 13:34:38');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (17, 'TvtPOF', '2022-06-01 13:34:38', '4620c2bd33c5ad138e95ebc80e8f4d5ebdc3458fdeb4b281bf6acc2866e3b6d2', 1, 1, '2022-06-01 13:36:03');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (18, 'KhQyew', '2022-06-01 13:36:03', '3fc9ec5e35ba3bde605013b63397b2489de31e3d9e3d6fdb3853da53fd910d12', 1, 1, '2022-06-01 14:28:59');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (19, '3X1MHI', '2022-06-01 14:28:59', 'b017f25ff75f01a1cb0f958ce4108537efe7feb239251e0c9e74a3e21c42d583', 1, 1, '2022-06-01 14:31:52');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (20, 'VN33d0', '2022-06-01 14:31:52', 'fda14df259a3513e77d1d7a72f1bc0959e496ef54ac14d24b4f17b00956c111d', 1, 1, '2022-06-01 14:32:36');
+INSERT INTO PokeApp.Token (Id_Token, Codigo_validacion, Fecha_Peticion, Token, Id_Usuario, Estatus, Fecha_Modificacion) VALUES (21, 'fIPubY', '2022-06-01 14:32:36', '02338c9c98734d3dcb6840ff9ee3ddddeb6c3ae45eea3f7899d6c99b95bd6db9', 1, 1, '2022-06-01 14:33:15');
+
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (1, 1, 'Chrome', '89.0.4389.128', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36', 1, '2021-04-19 16:24:48', '2021-04-19 16:24:48');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (2, 1, 'Chrome', '90.0.4430.93', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36', 1, '2021-05-13 08:41:02', '2021-05-13 08:41:02');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (3, 1, 'Chrome', '90.0.4430.212', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36', 1, '2021-05-25 10:25:34', '2021-05-25 10:25:34');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (4, 1, 'Chrome', '91.0.4472.106', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36', 1, '2021-06-22 12:12:12', '2021-06-22 12:12:12');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (5, 1, 'Chrome', '91.0.4472.124', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 1, '2021-07-13 15:43:36', '2021-07-13 15:43:36');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (6, 1, 'Chrome', '92.0.4515.107', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36', 1, '2021-08-02 11:57:01', '2021-08-02 11:57:01');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (7, 1, 'Chrome', '93.0.4577.63', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36', 1, '2021-09-14 10:19:36', '2021-09-14 10:19:36');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (8, 1, 'Chrome', '94.0.4606.81', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36', 1, '2021-10-15 08:22:26', '2021-10-15 08:22:26');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (9, 1, 'Chrome', '95.0.4638.69', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36', 1, '2021-11-18 08:00:32', '2021-11-18 08:00:32');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (10, 1, 'Chrome', '102.0.0.0', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36', 1, '2022-06-01 13:08:33', '2022-06-01 13:08:33');
+INSERT INTO PokeApp.Dispositivo (Id_Dispositivo, Id_Usuario, Agente, Version, Plataforma, Firma, Modelo, Tipo_Dispositivo, Cadena, Estado, Fecha_Registro, Fecha_Modificacion) VALUES (11, 1, 'Chrome', '102.0.5005.63', 'Windows 10', '', ' x64', 1, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36', 1, '2022-06-01 23:04:37', '2022-06-01 23:04:37');
+
+
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (1, 1, '728042d592c95b57ad3d9536359c66221e4c7ba050ce0dc735853f2b5a24a1df', '177.228.34.13', 1, '2021-04-21 07:18:15', '2021-04-21 08:58:53', '2021-04-21 08:58:53');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (2, 1, 'cb56f92555aaaf64ea4638900370c93fff8d277b9a33752d944974fd7fc37fc9', '177.228.34.13', 1, '2021-04-21 09:36:43', '2021-04-21 10:01:03', '2021-04-21 12:22:35');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (3, 1, 'd25500900ee1b212da619a3a7eb8ba3aac1e534754ff7409e3fbddbb4e450758', '200.68.138.16', 1, '2021-04-21 12:22:35', '2021-04-21 12:32:00', '2021-04-22 08:23:37');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (4, 1, 'acf0a318b0d54f5168a1aeca35c693cab51280aa3f8e37844996c298fe2fd4c7', '177.244.32.178', 1, '2021-04-22 08:23:37', '2021-04-22 12:58:07', '2021-05-13 08:41:02');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (5, 1, '0abd9fabccb1cd24453e07011c1548a2cd6351df339e2548eb442eb5d635aa3a', '177.244.32.178', 2, '2021-05-13 08:41:02', '2021-05-13 08:42:20', '2021-05-25 10:25:34');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (6, 1, '1b0198caef8e970720dd0d1c2f6ca3af4c7d1c96d2ff7f57b67bab8467eb8b8b', '187.190.130.185', 3, '2021-05-25 10:25:34', '2021-05-25 11:25:38', '2021-05-25 11:25:38');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (7, 1, '0bc295f45c045b86e1d91f6964f1ce7bbc961c29db1f41cdd0cf95815ddce499', '187.190.130.185', 3, '2021-05-25 11:26:02', '2021-05-25 13:13:27', '2021-05-26 07:48:22');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (8, 1, 'ab464bf5a856eef4374a670081ac6efb6abe68a1a43fe05108abf38faa6a20b6', '189.203.137.227', 3, '2021-05-26 07:48:22', '2021-05-26 10:53:21', '2021-05-26 10:53:21');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (9, 1, 'ef34e10a471958f9033cc411d4f577839e7b6c0755e74aa376cd0235a1035bc9', '189.203.137.227', 3, '2021-05-26 10:58:26', '2021-05-26 10:58:39', '2021-05-28 15:00:06');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (10, 1, '52d5d5142e61957db91e64687e36b54db4d79950db1ecee65b84537711dad373', '187.190.130.185', 3, '2021-05-28 15:00:06', '2021-05-28 15:00:21', '2021-06-22 12:12:12');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (11, 1, 'e4e28b87850a7e7ba2f191ede3aa0924f6791a6f1165c8ccfaa13dc173701503', '187.190.130.185', 4, '2021-06-22 12:12:12', '2021-06-22 12:12:50', '2021-06-23 08:21:04');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (12, 1, 'adfdf79d001501310c3ec3461ab859af082acb7bcf751f28fd2aeb2e318e2402', '177.228.32.133', 4, '2021-06-23 08:21:04', '2021-06-23 08:57:42', '2021-07-13 15:43:36');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (13, 1, 'd060eaa730ad601f3e716e4e8e381c83a6d4e8c1fc789a78336a594d857a5f3c', '187.190.130.185', 5, '2021-07-13 15:43:36', '2021-07-13 15:43:36', '2021-08-02 11:57:01');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (14, 1, '5d57d7cb606612464fcc15f75a8fd8f7fb592d76b0d0ad09945f2e648ea55f71', '177.228.32.109', 6, '2021-08-02 11:57:01', '2021-08-02 11:57:01', '2021-09-14 10:19:36');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (15, 1, '8da269a7b167ab0163d66f2ad019ec42fe03090479287808b62203bdbbba9da3', '187.190.130.185', 7, '2021-09-14 10:19:36', '2021-09-14 10:19:48', '2021-09-14 10:19:48');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (16, 1, '18687bd38033c5fa37ade8c8fc3dc05a51ab087ed3abd59d764d5ca151fa2692', '177.244.32.178', 8, '2021-10-15 08:22:26', '2021-10-15 08:48:41', '2021-11-18 08:00:32');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (17, 1, '316edcbf716daa6f3de00c2eb1ccbe45bfd177bb135f9c358c5b3887502f1795', '177.244.32.178', 9, '2021-11-18 08:00:32', '2021-11-18 08:00:36', '2021-11-18 08:00:36');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (18, 1, '34ce48117d194bfec53e7066865d35f81ad3d59c5c589564d2702e328aa29627', '::1', 10, '2022-06-01 13:08:33', '2022-06-01 13:15:02', '2022-06-01 13:15:02');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (19, 1, 'd5e5c79daae73d3b4b16336a1b260edc46444069d3597160b1b668699194e610', '::1', 10, '2022-06-01 14:33:25', '2022-06-01 14:56:22', '2022-06-01 14:56:22');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (20, 1, 'd3223abbe19f930857be49ae594c7a018f12b536a2e94d44fe58da5e3d8335f2', '::1', 10, '2022-06-01 14:56:30', '2022-06-01 15:21:30', '2022-06-01 18:04:37');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (21, 1, 'cd073edf784e243ecc8b2c4d81156aab9bc4b19e0937d3c19270b37ef8e32f62', '172.18.0.1', 11, '2022-06-01 18:04:37', '2022-06-01 18:25:05', '2022-06-01 18:25:05');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (22, 1, '28d0d214df675a4bb3dd0f143d3980ac8630c20bd292105d89a13330bebd2e44', '172.18.0.1', 11, '2022-06-01 18:25:15', '2022-06-01 19:25:05', '2022-06-01 19:25:05');
+INSERT INTO PokeApp.Sesion (Id_Sesion, Id_Usuario, Token, Ip, Id_Dispositivo, Fecha_Inicio, Fecha_Last_Move, Fecha_Cierre) VALUES (23, 1, '348a3dbad69cce49234189c00f051c4f53ce501ee11ff646081491414ee72194', '172.18.0.1', 11, '2022-06-01 19:25:13', '2022-06-01 21:37:55', '2022-06-01 21:37:55');
+
+
+
+create table Pokemonlog
+(
+    id                 int                          not null
+        primary key,
+    Nombre             varchar(100) charset utf8mb3 null,
+    Height             float                        null,
+    Weight             float                        null,
+    Orden              int                          null,
+    Xp_Base            int                          null,
+    Fecha_Registro     datetime                     null,
+    Fecha_Modificacion datetime                     null,
+    Estatus            tinyint default 1            null
+);
+
+
+
+CREATE TRIGGER ai_data AFTER INSERT ON PokeApp.Pokemon
+	FOR EACH ROW
+	BEGIN
+	  INSERT INTO PokeApp.Pokemonlog (action,id, Nombre, Height, Weight, Orden, Xp_Base, Fecha_Registro, Fecha_Modificacion, Estatus)
+	  VALUES('insert',NEW.id,NEW.Nombre,NEW.Height,NEW.Weight,NEW.Orden,NEW.Xp_Base,NEW.Fecha_Registro,NEW.Fecha_Modificacion,NEW.Estatus);
+	END;
+
+	CREATE TRIGGER au_data AFTER UPDATE ON PokeApp.Pokemon
+	FOR EACH ROW
+	BEGIN
+	  INSERT INTO PokeApp.Pokemonlog (action,id, Nombre, Height, Weight, Orden, Xp_Base, Fecha_Registro, Fecha_Modificacion, Estatus)
+	  VALUES('update',NEW.id,NEW.Nombre,NEW.Height,NEW.Weight,NEW.Orden,NEW.Xp_Base,NEW.Fecha_Registro,NEW.Fecha_Modificacion,NEW.Estatus);
+	END;
+
+	CREATE TRIGGER ad_data AFTER DELETE ON PokeApp.Pokemon
+	FOR EACH ROW
+	BEGIN
+	  INSERT INTO PokeApp.Pokemonlog (action,id, Nombre, Height, Weight, Orden, Xp_Base, Fecha_Registro, Fecha_Modificacion, Estatus)
+	  VALUES('delete',OLD.id,OLD.Nombre,OLD.Height,OLD.Weight,OLD.Orden,OLD.Xp_Base,OLD.Fecha_Registro,OLD.Fecha_Modificacion,OLD.Estatus);
+	END;
+
