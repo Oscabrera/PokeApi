@@ -12,9 +12,9 @@ function l_login(){
     $password = $ci->input->post('passw');
 
     $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-    $recaptcha_secret = '';
+    $recaptcha_secret = '6LdokbAaAAAAACmhERHhkSu2PvZVUAZhEyymhgJB';
     $recaptcha_response =  $ci->input->post('recaptcha_response');
-    // $recaptcha = curlGet($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_response);
+    $recaptcha = curlGet($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_response);
 
     // Take action based on the score returned:
   // if ($recaptcha->score >= 0.6) {
